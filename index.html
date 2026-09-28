@@ -6,7 +6,6 @@
   <meta name="theme-color" content="#0b1120">
   <title>Fantatennis – Race to Turin</title>
   <link rel="manifest" href="manifest.json">
-  <!-- FontAwesome & Chart.js -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -54,10 +53,10 @@
       cursor: pointer; transition: transform 0.15s ease, border-color 0.15s ease;
     }
     .team-card:active { transform: scale(0.99); }
-    .team-rank { font-size: 1.1rem; font-weight: 800; width: 30px; text-align: center; }
+    .team-rank { font-size: 1.1rem; font-weight: 800; width: 32px; text-align: center; }
     .rank-1 { color: #facc15; }
-    .rank-2 { color: #94a3b8; }
-    .rank-3 { color: #b45309; }
+    .rank-2 { color: #cbd5e1; }
+    .rank-3 { color: #d97706; }
     .team-info { flex: 1; margin: 0 12px; }
     .team-name { font-weight: 700; font-size: 0.95rem; }
     .team-sub { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
@@ -79,8 +78,8 @@
       transform: translateY(100%); transition: transform 0.25s ease; z-index: 70;
     }
     .drawer.active { transform: translateY(0); }
-    .drawer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .drawer-close { background: none; border: none; color: var(--muted); font-size: 1.3rem; }
+    .drawer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .drawer-close { background: none; border: none; color: var(--muted); font-size: 1.3rem; cursor: pointer; }
 
     /* Roster Player Card */
     .roster-card {
@@ -96,7 +95,7 @@
     .player-meta { font-size: 0.75rem; color: var(--muted); }
     .player-right { text-align: right; }
     .player-pts { font-weight: 700; color: var(--accent); font-size: 0.9rem; }
-    .player-pct { font-size: 0.75rem; color: var(--accent-lime); }
+    .player-pct { font-size: 0.75rem; color: var(--accent-lime); font-weight: 600; }
 
     /* Controls (Filtri e Cerca) */
     .control-box { display: flex; gap: 8px; margin-bottom: 14px; }
@@ -105,24 +104,24 @@
       padding: 10px 12px; border-radius: 8px; font-size: 0.85rem; outline: none;
     }
     .search-input { flex: 2; }
-    .select-input { flex: 1; }
+    .select-input { flex: 1.2; }
 
     /* Grafici */
     .chart-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 16px; }
-    .chart-title { font-size: 0.85rem; font-weight: 700; margin-bottom: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .chart-title { font-size: 0.85rem; font-weight: 700; margin-bottom: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
 
     /* Albo d'Oro */
     .albo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
     .albo-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px; }
-    .albo-year { font-weight: 800; font-size: 0.9rem; color: var(--accent-lime); margin-bottom: 4px; }
-    .albo-row { font-size: 0.75rem; margin-top: 2px; }
+    .albo-year { font-weight: 800; font-size: 0.95rem; color: var(--accent-lime); margin-bottom: 6px; }
+    .albo-row { font-size: 0.8rem; margin-top: 3px; }
   </style>
 </head>
 <body>
 
   <header>
     <h1><i class="fa-solid fa-baseball"></i> Race to Turin</h1>
-    <span style="font-size:0.75rem; color:var(--muted);"><i class="fa-solid fa-signal text-success"></i> Aggiornato</span>
+    <span style="font-size:0.75rem; color:var(--muted);"><i class="fa-solid fa-circle" style="color:var(--accent); font-size:0.55rem;"></i> Live Race</span>
   </header>
 
   <!-- TAB 1: CLASSIFICA TEAM -->
@@ -144,12 +143,12 @@
   <!-- TAB 3: GRAFICI -->
   <main id="tab-grafici" class="tab-content">
     <div class="chart-box">
-      <div class="chart-title"><i class="fa-solid fa-chart-line"></i> Andamento Punti (7 Rilevazioni)</div>
-      <canvas id="chart-andamento" height="220"></canvas>
+      <div class="chart-title"><i class="fa-solid fa-chart-line"></i> Andamento Team (7 Rilevazioni)</div>
+      <canvas id="chart-andamento" height="230"></canvas>
     </div>
     <div class="chart-box">
-      <div class="chart-title"><i class="fa-solid fa-ranking-star"></i> Top 10 Tennisti per Punti</div>
-      <canvas id="chart-top-players" height="250"></canvas>
+      <div class="chart-title"><i class="fa-solid fa-ranking-star"></i> Top 10 Tennisti per Punteggio</div>
+      <canvas id="chart-top-players" height="260"></canvas>
     </div>
   </main>
 
@@ -163,8 +162,8 @@
   <div class="drawer" id="drawer">
     <div class="drawer-header">
       <div>
-        <h3 id="drawer-team-name" style="font-size: 1.1rem; color:var(--accent-lime);"></h3>
-        <p id="drawer-team-kpi" style="font-size: 0.75rem; color:var(--muted); margin-top: 2px;"></p>
+        <h3 id="drawer-team-name" style="font-size: 1.15rem; color:var(--accent-lime);"></h3>
+        <p id="drawer-team-kpi" style="font-size: 0.75rem; color:var(--muted); margin-top: 3px;"></p>
       </div>
       <button class="drawer-close" onclick="closeDrawer()"><i class="fa-solid fa-xmark"></i></button>
     </div>
@@ -192,51 +191,12 @@
   </nav>
 
   <script>
-    // Dati estratti direttamente dai fogli di calcolo del torneo
-    const rawPlayers = [
-      { name: "Jannik Sinner", team: "A.C. PICCHIA", pts: 8900, nat: "ITA", age: 23, img: "https://www.atptour.com/-/media/alias/player-headshot/s00b" },
-      { name: "Carlos Alcaraz", team: "BREAK POINT", pts: 6710, nat: "ESP", age: 21, img: "https://www.atptour.com/-/media/alias/player-headshot/a0e2" },
-      { name: "Alexander Zverev", team: "ACE VENTURA", pts: 6115, nat: "GER", age: 27, img: "https://www.atptour.com/-/media/alias/player-headshot/z355" },
-      { name: "Daniil Medvedev", team: "SMASH BROS", pts: 4020, nat: "RUS", age: 28, img: "https://www.atptour.com/-/media/alias/player-headshot/mm58" },
-      { name: "Taylor Fritz", team: "NET GAIN", pts: 3890, nat: "USA", age: 26, img: "https://www.atptour.com/-/media/alias/player-headshot/fb98" },
-      { name: "Casper Ruud", team: "A.C. PICCHIA", pts: 3805, nat: "NOR", age: 25, img: "https://www.atptour.com/-/media/alias/player-headshot/rh16" },
-      { name: "Andrey Rublev", team: "DROP SHOT", pts: 3720, nat: "RUS", age: 26, img: "https://www.atptour.com/-/media/alias/player-headshot/re44" },
-      { name: "Alex de Minaur", team: "MATCH POINT", pts: 3370, nat: "AUS", age: 25, img: "https://www.atptour.com/-/media/alias/player-headshot/dh58" },
-      { name: "Novak Djokovic", team: "GAME SET MATCH", pts: 3260, nat: "SRB", age: 37, img: "https://www.atptour.com/-/media/alias/player-headshot/d643" },
-      { name: "Grigor Dimitrov", team: "BREAK POINT", pts: 3100, nat: "BUL", age: 33, img: "https://www.atptour.com/-/media/alias/player-headshot/d875" },
-      { name: "Tommy Paul", team: "ACE VENTURA", pts: 2980, nat: "USA", age: 27, img: "https://www.atptour.com/-/media/alias/player-headshot/pl56" },
-      { name: "Stefanos Tsitsipas", team: "SMASH BROS", pts: 2800, nat: "GRE", age: 26, img: "https://www.atptour.com/-/media/alias/player-headshot/te51" },
-      { name: "Holger Rune", team: "NET GAIN", pts: 2640, nat: "DEN", age: 21, img: "https://www.atptour.com/-/media/alias/player-headshot/r0dg" },
-      { name: "Ugo Humbert", team: "DROP SHOT", pts: 2450, nat: "FRA", age: 26, img: "https://www.atptour.com/-/media/alias/player-headshot/hh26" },
-      { name: "Lorenzo Musetti", team: "A.C. PICCHIA", pts: 2340, nat: "ITA", age: 22, img: "https://www.atptour.com/-/media/alias/player-headshot/m0ej" },
-      { name: "Frances Tiafoe", team: "MATCH POINT", pts: 2200, nat: "USA", age: 26, img: "https://www.atptour.com/-/media/alias/player-headshot/td51" }
-    ];
-
-    // Storico 7 rilevazioni (FANTATENNIS)
-    const storicoRilevazioni = {
-      labels: ["Ril. 1", "Ril. 2", "Ril. 3", "Ril. 4", "Ril. 5", "Ril. 6", "Ril. 7"],
-      teams: {
-        "A.C. PICCHIA": [2100, 4300, 6800, 9200, 11400, 13200, 15045],
-        "BREAK POINT": [1900, 3900, 5900, 7800, 9800, 11500, 12850],
-        "ACE VENTURA": [1800, 3700, 5600, 7500, 9300, 10800, 12100],
-        "SMASH BROS": [1600, 3400, 5100, 6900, 8600, 9900, 11200]
-      }
-    };
-
-    // Albo d'Oro storico
-    const alboStorico = [
-      { year: "2025", p1: "A.C. PICCHIA", p2: "BREAK POINT", p3: "ACE VENTURA" },
-      { year: "2024", p1: "ACE VENTURA", p2: "A.C. PICCHIA", p3: "SMASH BROS" },
-      { year: "2023", p1: "BREAK POINT", p2: "DROP SHOT", p3: "MATCH POINT" },
-      { year: "2022", p1: "NET GAIN", p2: "BREAK POINT", p3: "A.C. PICCHIA" },
-      { year: "2021", p1: "SMASH BROS", p2: "NET GAIN", p3: "ACE VENTURA" },
-      { year: "2020", p1: "A.C. PICCHIA", p2: "GAME SET MATCH", p3: "DROP SHOT" },
-      { year: "2019", p1: "MATCH POINT", p2: "A.C. PICCHIA", p3: "BREAK POINT" }
-    ];
+    const rawPlayers = [{"rank": 1, "name": "Alexander Zverev", "age": 29, "nat": "GER", "pts": 8650, "team": "MANU", "photo": "https://www.atptour.com/-/media/alias/player-gladiator-headshot/z355"}, {"rank": 2, "name": "Jannik Sinner", "age": 25, "nat": "ITA", "pts": 7950, "team": "FEDE NANO", "photo": "https://www.atptour.com/-/media/alias/player-gladiator-headshot/s0ag"}, {"rank": 3, "name": "Ben Shelton", "age": 23, "nat": "USA", "pts": 4430, "team": "CARE", "photo": "https://www.atptour.com/-/media/alias/player-gladiator-headshot/s0s1"}, {"rank": 4, "name": "Carlos Alcaraz", "age": 23, "nat": "ESP", "pts": 4050, "team": "CARE", "photo": "https://www.atptour.com/-/media/alias/player-gladiator-headshot/a0e2"}, {"rank": 5, "name": "Flavio Cobolli", "age": 24, "nat": "ITA", "pts": 3530, "team": "MANU", "photo": "https://www.atptour.com/-/media/alias/player-gladiator-headshot/c0e9"}, {"rank": 6, "name": "Frances Tiafoe", "age": 28, "nat": "USA", "pts": 3330, "team": "FEDE NANO", "photo": ""}, {"rank": 7, "name": "Arthur Fils", "age": 22, "nat": "FRA", "pts": 3150, "team": "FLACO", "photo": "https://www.atptour.com/-/media/alias/player-gladiator-headshot/f0f1"}, {"rank": 8, "name": "Daniil Medvedev", "age": 30, "nat": "RUS", "pts": 2780, "team": "EDU-NOVA", "photo": "https://www.atptour.com/-/media/alias/player-gladiator-headshot/mm58"}, {"rank": 10, "name": "Taylor Fritz", "age": 28, "nat": "USA", "pts": 2480, "team": "ENRY", "photo": "https://www.atptour.com/-/media/alias/player-gladiator-headshot/fb98"}, {"rank": 11, "name": "Tommy Paul", "age": 29, "nat": "USA", "pts": 2385, "team": "EDU-NOVA", "photo": "https://www.atptour.com/-/media/alias/player-gladiator-headshot/r0dg"}, {"rank": 12, "name": "Félix Auger-Aliassime", "age": 26, "nat": "CAN", "pts": 2365, "team": "ENRY", "photo": "https://www.atptour.com/-/media/alias/player-gladiator-headshot/ag37"}, {"rank": 13, "name": "Alex de Minaur", "age": 27, "nat": "AUS", "pts": 2360, "team": "BELTRI-MATTE", "photo": "https://www.atptour.com/-/media/alias/player-gladiator-headshot/dh58"}, {"rank": 14, "name": "Jakub Menšík", "age": 21, "nat": "CZE", "pts": 2355, "team": "EDU-NOVA", "photo": "https://www.atptour.com/-/media/alias/player-gladiator-headshot/m0ni"}, {"rank": 15, "name": "Novak Djoković", "age": 39, "nat": "SRB", "pts": 2330, "team": "BELTRI-MATTE", "photo": "https://www.atptour.com/-/media/alias/player-gladiator-headshot/d643"}, {"rank": 16, "name": "Brandon Nakashima", "age": 25, "nat": "USA", "pts": 2275, "team": "EDU-NOVA", "photo": ""}, {"rank": 17, "name": "Luciano Darderi", "age": 24, "nat": "ITA", "pts": 2140, "team": "BELTRI-MATTE", "photo": ""}, {"rank": 18, "name": "Learner Tien", "age": 20, "nat": "USA", "pts": 1995, "team": "FEDE NANO", "photo": ""}, {"rank": 19, "name": "Francisco Cerúndolo", "age": 28, "nat": "ARG", "pts": 1980, "team": "CARE", "photo": "https://www.atptour.com/-/media/alias/player-gladiator-headshot/c0au"}, {"rank": 20, "name": "Andrey Rublev", "age": 28, "nat": "RUS", "pts": 1860, "team": "FLACO", "photo": "https://www.atptour.com/-/media/alias/player-gladiator-headshot/re44"}, {"rank": 21, "name": "Jiří Lehečka", "age": 24, "nat": "CZE", "pts": 1855, "team": "FLACO", "photo": ""}, {"rank": 22, "name": "Casper Ruud", "age": 27, "nat": "NOR", "pts": 1785, "team": "FLACO", "photo": "https://www.atptour.com/-/media/alias/player-gladiator-headshot/rh16"}, {"rank": 23, "name": "Alexander Bublik", "age": 29, "nat": "KAZ", "pts": 1695, "team": "MANU", "photo": "https://www.atptour.com/-/media/alias/player-gladiator-headshot/bk92"}, {"rank": 24, "name": "Karen Khachanov", "age": 30, "nat": "RUS", "pts": 1690, "team": "ENRY", "photo": ""}, {"rank": 26, "name": "Tomás Martín Etcheverry", "age": 27, "nat": "ARG", "pts": 1515, "team": "BELTRI-MATTE", "photo": ""}, {"rank": 27, "name": "Alejandro Tabilo", "age": 29, "nat": "CHI", "pts": 1465, "team": "BELTRI-MATTE", "photo": ""}, {"rank": 30, "name": "Alex Michelsen", "age": 22, "nat": "USA", "pts": 1335, "team": "FLACO", "photo": ""}, {"rank": 31, "name": "Lorenzo Musetti", "age": 24, "nat": "ITA", "pts": 1285, "team": "BELTRI-MATTE", "photo": "https://www.atptour.com/-/media/alias/player-gladiator-headshot/m0ej"}, {"rank": 32, "name": "Alejandro Davidovich Fokina", "age": 27, "nat": "ESP", "pts": 1260, "team": "CARE", "photo": "https://www.atptour.com/-/media/alias/player-gladiator-headshot/dh50"}, {"rank": 33, "name": "Matteo Arnaldi", "age": 25, "nat": "ITA", "pts": 1231, "team": "EDU-NOVA", "photo": ""}, {"rank": 34, "name": "Ugo Humbert", "age": 28, "nat": "FRA", "pts": 1220, "team": "CARE", "photo": ""}, {"rank": 37, "name": "Stefanos Tsitsipas", "age": 28, "nat": "GRE", "pts": 1175, "team": "FEDE NANO", "photo": "https://www.atptour.com/-/media/alias/player-gladiator-headshot/te51"}, {"rank": 38, "name": "Botic van de Zandschulp", "age": 30, "nat": "NED", "pts": 1170, "team": "ENRY", "photo": ""}, {"rank": 39, "name": "Hubert Hurkacz", "age": 29, "nat": "POL", "pts": 1145, "team": "MANU", "photo": ""}, {"rank": 40, "name": "Zizou Bergs", "age": 27, "nat": "BEL", "pts": 1076, "team": "BELTRI-MATTE", "photo": ""}, {"rank": 41, "name": "Mariano Navone", "age": 25, "nat": "ARG", "pts": 1064, "team": "FEDE NANO", "photo": ""}, {"rank": 42, "name": "Luca Van Assche", "age": 22, "nat": "FRA", "pts": 1042, "team": "BELTRI-MATTE", "photo": ""}, {"rank": 44, "name": "Quentin Halys", "age": 29, "nat": "FRA", "pts": 1027, "team": "FLACO", "photo": ""}, {"rank": 46, "name": "Sebastián Báez", "age": 25, "nat": "ARG", "pts": 984, "team": "MANU", "photo": ""}, {"rank": 47, "name": "Matteo Berrettini", "age": 30, "nat": "ITA", "pts": 953, "team": "FEDE NANO", "photo": ""}, {"rank": 50, "name": "Cameron Norrie", "age": 31, "nat": "GBR", "pts": 930, "team": "FEDE NANO", "photo": ""}, {"rank": 51, "name": "Nuno Borges", "age": 29, "nat": "POR", "pts": 920, "team": "ENRY", "photo": ""}, {"rank": 53, "name": "Jaime Faria", "age": 23, "nat": "POR", "pts": 868, "team": "EDU-NOVA", "photo": ""}, {"rank": 54, "name": "Denis Shapovalov", "age": 27, "nat": "CAN", "pts": 865, "team": "FLACO", "photo": ""}, {"rank": 55, "name": "Jan Lennard Struff", "age": 36, "nat": "GER", "pts": 846, "team": "CARE", "photo": ""}, {"rank": 56, "name": "Fábián Marozsán", "age": 26, "nat": "HUN", "pts": 840, "team": "FLACO", "photo": ""}, {"rank": 58, "name": "Arthur Rinderknech", "age": 31, "nat": "FRA", "pts": 820, "team": "BELTRI-MATTE", "photo": ""}, {"rank": 59, "name": "Miomir Kecmanović", "age": 27, "nat": "SRB", "pts": 813, "team": "MANU", "photo": ""}, {"rank": 63, "name": "Facundo Díaz Acosta", "age": 25, "nat": "ARG", "pts": 772, "team": "ENRY", "photo": ""}, {"rank": 64, "name": "Tallon Griekspoor", "age": 30, "nat": "NED", "pts": 765, "team": "FEDE NANO", "photo": ""}, {"rank": 65, "name": "Martin Landaluce", "age": 20, "nat": "ESP", "pts": 748, "team": "BELTRI-MATTE", "photo": ""}, {"rank": 67, "name": "Hamad Medjedović", "age": 23, "nat": "SRB", "pts": 741, "team": "EDU-NOVA", "photo": ""}, {"rank": 69, "name": "James Duckworth", "age": 34, "nat": "AUS", "pts": 714, "team": "CARE", "photo": ""}, {"rank": 70, "name": "Tomáš Macháč", "age": 25, "nat": "CZE", "pts": 710, "team": "EDU-NOVA", "photo": ""}, {"rank": 73, "name": "Daniel Altmaier", "age": 28, "nat": "GER", "pts": 694, "team": "CARE", "photo": ""}, {"rank": 74, "name": "Camilo Ugo Carabelli", "age": 27, "nat": "ARG", "pts": 690, "team": "CARE", "photo": ""}, {"rank": 75, "name": "Adrian Mannarino", "age": 38, "nat": "FRA", "pts": 680, "team": "MANU", "photo": ""}, {"rank": 77, "name": "Rinky Hijikata", "age": 25, "nat": "AUS", "pts": 663, "team": "ENRY", "photo": ""}, {"rank": 81, "name": "Roman Safiullin", "age": 29, "nat": "RUS", "pts": 619, "team": "CARE", "photo": ""}, {"rank": 82, "name": "Marcos Giron", "age": 33, "nat": "USA", "pts": 616, "team": "FLACO", "photo": ""}, {"rank": 88, "name": "Benjamin Bonzi", "age": 30, "nat": "FRA", "pts": 592, "team": "MANU", "photo": ""}, {"rank": 89, "name": "Sebastian Korda", "age": 26, "nat": "USA", "pts": 590, "team": "FLACO", "photo": ""}, {"rank": 90, "name": "Adam Walton", "age": 27, "nat": "AUS", "pts": 589, "team": "FEDE NANO", "photo": ""}, {"rank": 93, "name": "Jaume Munar", "age": 29, "nat": "ESP", "pts": 565, "team": "ENRY", "photo": ""}, {"rank": 94, "name": "Jacob Fearnley", "age": 25, "nat": "GBR", "pts": 556, "team": "EDU-NOVA", "photo": ""}, {"rank": 97, "name": "Yunchaokete Bu", "age": 24, "nat": "CHN", "pts": 533, "team": "BELTRI-MATTE", "photo": ""}, {"rank": 105, "name": "Christopher O'Connell", "age": 32, "nat": "AUS", "pts": 499, "team": "CARE", "photo": ""}, {"rank": 107, "name": "Corentin Moutet", "age": 27, "nat": "FRA", "pts": 490, "team": "MANU", "photo": ""}, {"rank": 113, "name": "Lorenzo Sonego", "age": 31, "nat": "ITA", "pts": 458, "team": "BELTRI-MATTE", "photo": ""}, {"rank": 114, "name": "Alexei Popyrin", "age": 27, "nat": "AUS", "pts": 448, "team": "FEDE NANO", "photo": ""}, {"rank": 117, "name": "Pedro Martínez", "age": 29, "nat": "ESP", "pts": 437, "team": "ENRY", "photo": ""}, {"rank": 119, "name": "Thiago Seyboth Wild", "age": 26, "nat": "BRA", "pts": 426, "team": "ENRY", "photo": ""}, {"rank": 121, "name": "Grigor Dimitrov", "age": 35, "nat": "BUL", "pts": 422, "team": "MANU", "photo": ""}, {"rank": 124, "name": "Otto Virtanen", "age": 25, "nat": "FIN", "pts": 406, "team": "EDU-NOVA", "photo": ""}, {"rank": 126, "name": "Aleksandar Vukic", "age": 30, "nat": "AUS", "pts": 400, "team": "FLACO", "photo": ""}, {"rank": 134, "name": "Giovanni Mpetshi Perricard", "age": 23, "nat": "FRA", "pts": 375, "team": "BELTRI-MATTE", "photo": ""}, {"rank": 139, "name": "Jack Draper", "age": 24, "nat": "GBR", "pts": 360, "team": "EDU-NOVA", "photo": "https://www.atptour.com/-/media/alias/player-gladiator-headshot/d0co"}, {"rank": 141, "name": "Nishesh Basavareddy", "age": 21, "nat": "USA", "pts": 356, "team": "CARE", "photo": ""}, {"rank": 148, "name": "Zhizhen Zhang", "age": 29, "nat": "CHN", "pts": 340, "team": "MANU", "photo": ""}, {"rank": 150, "name": "Gabriel Diallo", "age": 25, "nat": "CAN", "pts": 325, "team": "FEDE NANO", "photo": ""}, {"rank": 160, "name": "Alexandre Müller", "age": 29, "nat": "FRA", "pts": 312, "team": "MANU", "photo": ""}, {"rank": 206, "name": "Thiago Monteiro", "age": 32, "nat": "BRA", "pts": 238, "team": "FLACO", "photo": ""}, {"rank": 209, "name": "Roberto Bautista Agut", "age": 38, "nat": "ESP", "pts": 233, "team": "ENRY", "photo": ""}, {"rank": 221, "name": "Gaël Monfils", "age": 40, "nat": "FRA", "pts": 220, "team": "CARE", "photo": ""}, {"rank": 229, "name": "Roberto Carballés Baena", "age": 33, "nat": "ESP", "pts": 213, "team": "MANU", "photo": ""}, {"rank": 242, "name": "Reilly Opelka", "age": 29, "nat": "USA", "pts": 200, "team": "EDU-NOVA", "photo": ""}, {"rank": 249, "name": "Jérôme Kym", "age": 23, "nat": "SUI", "pts": 193, "team": "FEDE NANO", "photo": ""}, {"rank": 257, "name": "Sumit Nagal", "age": 29, "nat": "IND", "pts": 186, "team": "MANU", "photo": ""}, {"rank": 267, "name": "Luca Nardi", "age": 23, "nat": "ITA", "pts": 180, "team": "ENRY", "photo": ""}, {"rank": 283, "name": "Juncheng Shang", "age": 21, "nat": "CHN", "pts": 170, "team": "EDU-NOVA", "photo": ""}, {"rank": 372, "name": "Thanasi Kokkinakis", "age": 30, "nat": "AUS", "pts": 118, "team": "FLACO", "photo": ""}, {"rank": 386, "name": "Kei Nishikori", "age": 36, "nat": "JPN", "pts": 111, "team": "BELTRI-MATTE", "photo": ""}, {"rank": 401, "name": "Kasidit Samrej", "age": 25, "nat": "THA", "pts": 108, "team": "EDU-NOVA", "photo": ""}, {"rank": 562, "name": "Jordan Thompson", "age": 32, "nat": "AUS", "pts": 62, "team": "CARE", "photo": ""}, {"rank": 632, "name": "Arthur Cazaux", "age": 24, "nat": "FRA", "pts": 50, "team": "ENRY", "photo": ""}, {"rank": 640, "name": "Max Purcell", "age": 28, "nat": "AUS", "pts": 49, "team": "FEDE NANO", "photo": ""}, {"rank": 810, "name": "Nicolás Jarry", "age": 30, "nat": "CHI", "pts": 30, "team": "ENRY", "photo": ""}, {"rank": 883, "name": "David Goffin", "age": 35, "nat": "BEL", "pts": 24, "team": "CARE", "photo": ""}];
+    const storicoRilevazioni = {"labels": ["02/02", "23/02", "17/03", "17/04", "18/05", "11/06", "13/07"], "teams": {"CARE": [3389, 4650, 6597, 8582, 9887, 10860, 12835], "BELTRI-MATTE": [3320, 4971, 6173, 7732, 9328, 10693, 12155], "EDU-NOVA": [2158, 2523, 5041, 6294, 7718, 10191, 10473], "MANU": [2110, 2460, 5152, 7026, 8964, 12813, 14375], "FEDE NANO": [1788, 1975, 5590, 8841, 11415, 12920, 15306], "FLACO": [1236, 2754, 4145, 6260, 8899, 9791, 10321], "ENRY": [1092, 1933, 3578, 4500, 5216, 6186, 7487]}};
+    const alboStorico = [{"year": 2025, "p1": "CATENA", "p2": "FEDE NANO", "p3": "BELTRI-MATTE"}, {"year": 2024, "p1": "DODO", "p2": "BELTRI-MATTE", "p3": "ENRY"}, {"year": 2022, "p1": "CATENA", "p2": "N/D", "p3": "N/D"}, {"year": 2021, "p1": "BELTRI MATTE", "p2": "FEDE NANO", "p3": "DODO"}, {"year": 2020, "p1": "BELTRI-MATTE", "p2": "ENRY", "p3": "FEDENANO"}, {"year": 2019, "p1": "FEDE NANO", "p2": "FLACO", "p3": "ENRY"}];
 
     let aggregatedTeams = [];
 
-    // Aggregazione dati e calcolo statistiche
     function initData() {
       const groups = {};
       rawPlayers.forEach(p => {
@@ -247,7 +207,7 @@
       aggregatedTeams = Object.keys(groups).map(name => {
         const roster = groups[name].sort((a,b) => b.pts - a.pts);
         const totalPts = roster.reduce((sum, p) => sum + p.pts, 0);
-        const topScorer = roster[0] || { name: "-", pts: 0 };
+        const topScorer = roster[0] || { name: "-", pts: 0, photo: "" };
         const avgPts = Math.round(totalPts / roster.length);
 
         return {
@@ -269,17 +229,17 @@
       });
     }
 
-    // Render Tabella Classifica
     function renderClassifica() {
       const container = document.getElementById("team-list");
       container.innerHTML = aggregatedTeams.map(t => {
         const medalClass = t.rank === 1 ? 'rank-1' : t.rank === 2 ? 'rank-2' : t.rank === 3 ? 'rank-3' : '';
+        const pctTop = ((t.topScorer.pts / t.totalPts) * 100).toFixed(0);
         return `
           <div class="team-card" onclick="openDrawer('${t.name}')">
             <div class="team-rank ${medalClass}">#${t.rank}</div>
             <div class="team-info">
               <div class="team-name">${t.name}</div>
-              <div class="team-sub">Media: ${t.avgPts.toLocaleString()} | Top: ${t.topScorer.name} (${t.topScorer.pts})</div>
+              <div class="team-sub">Media: ${t.avgPts.toLocaleString()} pt | Top: ${t.topScorer.name} (${t.topScorer.pts} pt - ${pctTop}%)</div>
             </div>
             <div class="team-score">
               <div class="score-pts">${t.totalPts.toLocaleString()}</div>
@@ -290,24 +250,24 @@
       }).join('');
     }
 
-    // Drawer Roster Giocatori
     function openDrawer(teamName) {
       const team = aggregatedTeams.find(t => t.name === teamName);
       if (!team) return;
 
       document.getElementById("drawer-team-name").innerText = team.name;
-      document.getElementById("drawer-team-kpi").innerText = `Totale: ${team.totalPts.toLocaleString()} pti • Media: ${team.avgPts.toLocaleString()} pti`;
+      document.getElementById("drawer-team-kpi").innerText = `Totale: ${team.totalPts.toLocaleString()} pti • Media: ${team.avgPts.toLocaleString()} pti • ${team.count} Giocatori`;
 
       const listContainer = document.getElementById("drawer-players");
       listContainer.innerHTML = team.roster.map(p => {
         const pct = ((p.pts / team.totalPts) * 100).toFixed(1);
+        const imgUrl = p.photo || 'https://placehold.co/80x80/1e293b/a3e635?text=ATP';
         return `
           <div class="roster-card">
             <div class="player-left">
-              <img src="${p.img}" class="player-avatar" onerror="this.src='https://placehold.co/80x80/1e293b/a3e635?text=ATP'">
+              <img src="${imgUrl}" class="player-avatar" onerror="this.src='https://placehold.co/80x80/1e293b/a3e635?text=ATP'">
               <div>
                 <div class="player-name">${p.name}</div>
-                <div class="player-meta">${p.nat} • ${p.age} anni</div>
+                <div class="player-meta">${p.nat || '-'} • ${p.age ? p.age + ' anni' : ''} • Rank #${p.rank || '-'}</div>
               </div>
             </div>
             <div class="player-right">
@@ -327,7 +287,6 @@
       document.getElementById("drawer").classList.remove("active");
     }
 
-    // Render Tab Giocatori con Filtro & Ricerca
     function renderPlayers(filterText = "", teamFilter = "") {
       const container = document.getElementById("all-players-list");
       const filtered = rawPlayers.filter(p => {
@@ -336,34 +295,38 @@
         return matchName && matchTeam;
       }).sort((a,b) => b.pts - a.pts);
 
-      container.innerHTML = filtered.map(p => `
-        <div class="roster-card">
-          <div class="player-left">
-            <img src="${p.img}" class="player-avatar" onerror="this.src='https://placehold.co/80x80/1e293b/a3e635?text=ATP'">
-            <div>
-              <div class="player-name">${p.name}</div>
-              <div class="player-meta">${p.team} • ${p.nat} (${p.age}a)</div>
+      container.innerHTML = filtered.map(p => {
+        const imgUrl = p.photo || 'https://placehold.co/80x80/1e293b/a3e635?text=ATP';
+        return `
+          <div class="roster-card">
+            <div class="player-left">
+              <img src="${imgUrl}" class="player-avatar" onerror="this.src='https://placehold.co/80x80/1e293b/a3e635?text=ATP'">
+              <div>
+                <div class="player-name">${p.name}</div>
+                <div class="player-meta">${p.team} • ${p.nat || '-'} (${p.age || '-'}a)</div>
+              </div>
+            </div>
+            <div class="player-right">
+              <div class="player-pts">${p.pts.toLocaleString()} pt</div>
+              <div class="player-meta">Rank #${p.rank || '-'}</div>
             </div>
           </div>
-          <div class="player-right">
-            <div class="player-pts">${p.pts.toLocaleString()}</div>
-          </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
-    // Inizializzazione Grafici Chart.js
     function initCharts() {
       // 1. Andamento Storico
       const ctxLine = document.getElementById('chart-andamento').getContext('2d');
-      const colors = ['#22c55e', '#38bdf8', '#f59e0b', '#ec4899'];
-      const datasets = Object.keys(storicoRilevazioni.teams).map((teamName, i) => ({
-        label: teamName,
-        data: storicoRilevazioni.teams[teamName],
-        borderColor: colors[i % colors.length],
+      const colors = ['#22c55e', '#38bdf8', '#f59e0b', '#ec4899', '#a855f7', '#06b6d4', '#eab308'];
+      let cIdx = 0;
+      const datasets = Object.keys(storicoRilevazioni.teams).map(tName => ({
+        label: tName,
+        data: storicoRilevazioni.teams[tName],
+        borderColor: colors[cIdx++ % colors.length],
         tension: 0.3,
         borderWidth: 2,
-        pointRadius: 2
+        pointRadius: 3
       }));
 
       new Chart(ctxLine, {
@@ -371,7 +334,11 @@
         data: { labels: storicoRilevazioni.labels, datasets },
         options: {
           responsive: true,
-          plugins: { legend: { labels: { color: '#94a3b8', font: { size: 10 } } } },
+          plugins: { 
+            legend: { 
+              labels: { color: '#94a3b8', font: { size: 9 }, boxWidth: 10 } 
+            } 
+          },
           scales: {
             x: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } },
             y: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } }
@@ -379,7 +346,7 @@
         }
       });
 
-      // 2. Top 10 Giocatori
+      // 2. Top 10 Tennisti
       const ctxBar = document.getElementById('chart-top-players').getContext('2d');
       const top10 = [...rawPlayers].sort((a,b) => b.pts - a.pts).slice(0, 10);
 
@@ -399,13 +366,12 @@
           plugins: { legend: { display: false } },
           scales: {
             x: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } },
-            y: { ticks: { color: '#f8fafc', font: { size: 9 } }, grid: { display: false } }
+            y: { ticks: { color: '#f8fafc', font: { size: 9.5 } }, grid: { display: false } }
           }
         }
       });
     }
 
-    // Render Albo d'Oro
     function renderAlbo() {
       const container = document.getElementById("albo-list");
       container.innerHTML = alboStorico.map(a => `
@@ -418,7 +384,6 @@
       `).join('');
     }
 
-    // Gestione Tab
     function switchTab(tabId, el) {
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -427,7 +392,6 @@
       window.scrollTo(0, 0);
     }
 
-    // Setup Eventi e Avvio
     window.addEventListener('DOMContentLoaded', () => {
       initData();
       renderClassifica();
@@ -435,7 +399,6 @@
       renderAlbo();
       initCharts();
 
-      // Setup tendina filtri
       const select = document.getElementById("team-filter");
       aggregatedTeams.forEach(t => {
         const opt = document.createElement("option");
@@ -444,14 +407,12 @@
         select.appendChild(opt);
       });
 
-      // Ricerca dinamica
       const searchInput = document.getElementById("player-search");
       searchInput.addEventListener("input", () => renderPlayers(searchInput.value, select.value));
       select.addEventListener("change", () => renderPlayers(searchInput.value, select.value));
 
-      // Registrazione Service Worker
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').catch(err => console.log('SW setup skipped:', err));
+        navigator.serviceWorker.register('sw.js').catch(err => console.log('SW error:', err));
       }
     });
   </script>
