@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0b1120">
+  <title>Fantatennis – Race to Turin</title>
+  <link rel="manifest" href="manifest.json">
+  <!-- FontAwesome & Chart.js -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --bg: #0b1120;
+      --card-bg: #1e293b;
+      --accent: #22c55e;
+      --accent-lime: #a3e635;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: #334155;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--bg); color: var(--text); padding-bottom: 75px; min-height: 100vh; }
+
+    header {
+      position: sticky; top: 0; background: rgba(11, 17, 32, 0.95);
+      backdrop-filter: blur(8px); border-bottom: 1px solid var(--border);
+      padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; z-index: 40;
+    }
+    header h1 { font-size: 1.15rem; font-weight: 800; color: var(--accent-lime); display: flex; align-items: center; gap: 8px; }
+
+    .tab-content { display: none; padding: 16px; max-width: 800px; margin: 0 auto; }
+    .tab-content.active { display: block; }
+
+    /* Bottom Nav */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0; height: 60px;
+      background: #0f172a; border-top: 1px solid var(--border);
+      display: flex; justify-content: space-around; align-items: center; z-index: 50;
+    }
+    .nav-btn {
+      background: none; border: none; color: var(--muted); font-size: 0.72rem;
+      display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; flex: 1;
+    }
+    .nav-btn i { font-size: 1.15rem; }
+    .nav-btn.active { color: var(--accent-lime); font-weight: 600; }
+
+    /* Classifica Cards */
+    .team-card {
+      background: var(--card-bg); border-radius: 12px; padding: 14px; margin-bottom: 10px;
+      border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+    .team-card:active { transform: scale(0.99); }
+    .team-rank { font-size: 1.1rem; font-weight: 800; width: 30px; text-align: center; }
+    .rank-1 { color: #facc15; }
+    .rank-2 { color: #94a3b8; }
+    .rank-3 { color: #b45309; }
+    .team-info { flex: 1; margin: 0 12px; }
+    .team-name { font-weight: 700; font-size: 0.95rem; }
+    .team-sub { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+    .team-score { text-align: right; }
+    .score-pts { font-size: 1.05rem; font-weight: 800; color: var(--accent); }
+    .score-gap { font-size: 0.7rem; color: var(--muted); }
+
+    /* Drawer / Cassetto */
+    .drawer-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7); opacity: 0; visibility: hidden;
+      transition: all 0.25s ease; z-index: 60;
+    }
+    .drawer-overlay.active { opacity: 1; visibility: visible; }
+    .drawer {
+      position: fixed; bottom: 0; left: 0; right: 0; max-height: 85vh;
+      background: var(--card-bg); border-top: 2px solid var(--accent);
+      border-radius: 20px 20px 0 0; padding: 18px; overflow-y: auto;
+      transform: translateY(100%); transition: transform 0.25s ease; z-index: 70;
+    }
+    .drawer.active { transform: translateY(0); }
+    .drawer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .drawer-close { background: none; border: none; color: var(--muted); font-size: 1.3rem; }
+
+    /* Roster Player Card */
+    .roster-card {
+      background: #0f172a; border: 1px solid var(--border); border-radius: 10px;
+      padding: 10px 14px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .player-left { display: flex; align-items: center; gap: 12px; }
+    .player-avatar {
+      width: 44px; height: 44px; border-radius: 50%; object-fit: cover;
+      background: #1e293b; border: 1px solid var(--border);
+    }
+    .player-name { font-weight: 600; font-size: 0.9rem; }
+    .player-meta { font-size: 0.75rem; color: var(--muted); }
+    .player-right { text-align: right; }
+    .player-pts { font-weight: 700; color: var(--accent); font-size: 0.9rem; }
+    .player-pct { font-size: 0.75rem; color: var(--accent-lime); }
+
+    /* Controls (Filtri e Cerca) */
+    .control-box { display: flex; gap: 8px; margin-bottom: 14px; }
+    .search-input, .select-input {
+      background: var(--card-bg); border: 1px solid var(--border); color: #fff;
+      padding: 10px 12px; border-radius: 8px; font-size: 0.85rem; outline: none;
+    }
+    .search-input { flex: 2; }
+    .select-input { flex: 1; }
+
+    /* Grafici */
+    .chart-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 16px; }
+    .chart-title { font-size: 0.85rem; font-weight: 700; margin-bottom: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* Albo d'Oro */
+    .albo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+    .albo-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px; }
+    .albo-year { font-weight: 800; font-size: 0.9rem; color: var(--accent-lime); margin-bottom: 4px; }
+    .albo-row { font-size: 0.75rem; margin-top: 2px; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1><i class="fa-solid fa-baseball"></i> Race to Turin</h1>
+    <span style="font-size:0.75rem; color:var(--muted);"><i class="fa-solid fa-signal text-success"></i> Aggiornato</span>
+  </header>
+
+  <!-- TAB 1: CLASSIFICA TEAM -->
+  <main id="tab-classifica" class="tab-content active">
+    <div id="team-list"></div>
+  </main>
+
+  <!-- TAB 2: TUTTI I GIOCATORI -->
+  <main id="tab-giocatori" class="tab-content">
+    <div class="control-box">
+      <input type="text" id="player-search" class="search-input" placeholder="Cerca tennista...">
+      <select id="team-filter" class="select-input">
+        <option value="">Tutti i Team</option>
+      </select>
+    </div>
+    <div id="all-players-list"></div>
+  </main>
+
+  <!-- TAB 3: GRAFICI -->
+  <main id="tab-grafici" class="tab-content">
+    <div class="chart-box">
+      <div class="chart-title"><i class="fa-solid fa-chart-line"></i> Andamento Punti (7 Rilevazioni)</div>
+      <canvas id="chart-andamento" height="220"></canvas>
+    </div>
+    <div class="chart-box">
+      <div class="chart-title"><i class="fa-solid fa-ranking-star"></i> Top 10 Tennisti per Punti</div>
+      <canvas id="chart-top-players" height="250"></canvas>
+    </div>
+  </main>
+
+  <!-- TAB 4: ALBO D'ORO -->
+  <main id="tab-albo" class="tab-content">
+    <div class="albo-grid" id="albo-list"></div>
+  </main>
+
+  <!-- DRAWER ROSTER -->
+  <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+  <div class="drawer" id="drawer">
+    <div class="drawer-header">
+      <div>
+        <h3 id="drawer-team-name" style="font-size: 1.1rem; color:var(--accent-lime);"></h3>
+        <p id="drawer-team-kpi" style="font-size: 0.75rem; color:var(--muted); margin-top: 2px;"></p>
+      </div>
+      <button class="drawer-close" onclick="closeDrawer()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="drawer-players"></div>
+  </div>
+
+  <!-- BOTTOM NAVIGATION -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" onclick="switchTab('classifica', this)">
+      <i class="fa-solid fa-trophy"></i>
+      <span>Classifica</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('giocatori', this)">
+      <i class="fa-solid fa-table-tennis-paddle-ball"></i>
+      <span>Giocatori</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('grafici', this)">
+      <i class="fa-solid fa-chart-simple"></i>
+      <span>Grafici</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('albo', this)">
+      <i class="fa-solid fa-crown"></i>
+      <span>Albo d'Oro</span>
+    </button>
+  </nav>
+
+  <script>
+    // Dati estratti direttamente dai fogli di calcolo del torneo
+    const rawPlayers = [
+      { name: "Jannik Sinner", team: "A.C. PICCHIA", pts: 8900, nat: "ITA", age: 23, img: "https://www.atptour.com/-/media/alias/player-headshot/s00b" },
+      { name: "Carlos Alcaraz", team: "BREAK POINT", pts: 6710, nat: "ESP", age: 21, img: "https://www.atptour.com/-/media/alias/player-headshot/a0e2" },
+      { name: "Alexander Zverev", team: "ACE VENTURA", pts: 6115, nat: "GER", age: 27, img: "https://www.atptour.com/-/media/alias/player-headshot/z355" },
+      { name: "Daniil Medvedev", team: "SMASH BROS", pts: 4020, nat: "RUS", age: 28, img: "https://www.atptour.com/-/media/alias/player-headshot/mm58" },
+      { name: "Taylor Fritz", team: "NET GAIN", pts: 3890, nat: "USA", age: 26, img: "https://www.atptour.com/-/media/alias/player-headshot/fb98" },
+      { name: "Casper Ruud", team: "A.C. PICCHIA", pts: 3805, nat: "NOR", age: 25, img: "https://www.atptour.com/-/media/alias/player-headshot/rh16" },
+      { name: "Andrey Rublev", team: "DROP SHOT", pts: 3720, nat: "RUS", age: 26, img: "https://www.atptour.com/-/media/alias/player-headshot/re44" },
+      { name: "Alex de Minaur", team: "MATCH POINT", pts: 3370, nat: "AUS", age: 25, img: "https://www.atptour.com/-/media/alias/player-headshot/dh58" },
+      { name: "Novak Djokovic", team: "GAME SET MATCH", pts: 3260, nat: "SRB", age: 37, img: "https://www.atptour.com/-/media/alias/player-headshot/d643" },
+      { name: "Grigor Dimitrov", team: "BREAK POINT", pts: 3100, nat: "BUL", age: 33, img: "https://www.atptour.com/-/media/alias/player-headshot/d875" },
+      { name: "Tommy Paul", team: "ACE VENTURA", pts: 2980, nat: "USA", age: 27, img: "https://www.atptour.com/-/media/alias/player-headshot/pl56" },
+      { name: "Stefanos Tsitsipas", team: "SMASH BROS", pts: 2800, nat: "GRE", age: 26, img: "https://www.atptour.com/-/media/alias/player-headshot/te51" },
+      { name: "Holger Rune", team: "NET GAIN", pts: 2640, nat: "DEN", age: 21, img: "https://www.atptour.com/-/media/alias/player-headshot/r0dg" },
+      { name: "Ugo Humbert", team: "DROP SHOT", pts: 2450, nat: "FRA", age: 26, img: "https://www.atptour.com/-/media/alias/player-headshot/hh26" },
+      { name: "Lorenzo Musetti", team: "A.C. PICCHIA", pts: 2340, nat: "ITA", age: 22, img: "https://www.atptour.com/-/media/alias/player-headshot/m0ej" },
+      { name: "Frances Tiafoe", team: "MATCH POINT", pts: 2200, nat: "USA", age: 26, img: "https://www.atptour.com/-/media/alias/player-headshot/td51" }
+    ];
+
+    // Storico 7 rilevazioni (FANTATENNIS)
+    const storicoRilevazioni = {
+      labels: ["Ril. 1", "Ril. 2", "Ril. 3", "Ril. 4", "Ril. 5", "Ril. 6", "Ril. 7"],
+      teams: {
+        "A.C. PICCHIA": [2100, 4300, 6800, 9200, 11400, 13200, 15045],
+        "BREAK POINT": [1900, 3900, 5900, 7800, 9800, 11500, 12850],
+        "ACE VENTURA": [1800, 3700, 5600, 7500, 9300, 10800, 12100],
+        "SMASH BROS": [1600, 3400, 5100, 6900, 8600, 9900, 11200]
+      }
+    };
+
+    // Albo d'Oro storico
+    const alboStorico = [
+      { year: "2025", p1: "A.C. PICCHIA", p2: "BREAK POINT", p3: "ACE VENTURA" },
+      { year: "2024", p1: "ACE VENTURA", p2: "A.C. PICCHIA", p3: "SMASH BROS" },
+      { year: "2023", p1: "BREAK POINT", p2: "DROP SHOT", p3: "MATCH POINT" },
+      { year: "2022", p1: "NET GAIN", p2: "BREAK POINT", p3: "A.C. PICCHIA" },
+      { year: "2021", p1: "SMASH BROS", p2: "NET GAIN", p3: "ACE VENTURA" },
+      { year: "2020", p1: "A.C. PICCHIA", p2: "GAME SET MATCH", p3: "DROP SHOT" },
+      { year: "2019", p1: "MATCH POINT", p2: "A.C. PICCHIA", p3: "BREAK POINT" }
+    ];
+
+    let aggregatedTeams = [];
+
+    // Aggregazione dati e calcolo statistiche
+    function initData() {
+      const groups = {};
+      rawPlayers.forEach(p => {
+        if (!groups[p.team]) groups[p.team] = [];
+        groups[p.team].push(p);
+      });
+
+      aggregatedTeams = Object.keys(groups).map(name => {
+        const roster = groups[name].sort((a,b) => b.pts - a.pts);
+        const totalPts = roster.reduce((sum, p) => sum + p.pts, 0);
+        const topScorer = roster[0] || { name: "-", pts: 0 };
+        const avgPts = Math.round(totalPts / roster.length);
+
+        return {
+          name,
+          roster,
+          totalPts,
+          avgPts,
+          topScorer,
+          count: roster.length
+        };
+      });
+
+      aggregatedTeams.sort((a, b) => b.totalPts - a.totalPts);
+      const topPts = aggregatedTeams[0] ? aggregatedTeams[0].totalPts : 0;
+
+      aggregatedTeams.forEach((team, idx) => {
+        team.rank = idx + 1;
+        team.gap = topPts - team.totalPts;
+      });
+    }
+
+    // Render Tabella Classifica
+    function renderClassifica() {
+      const container = document.getElementById("team-list");
+      container.innerHTML = aggregatedTeams.map(t => {
+        const medalClass = t.rank === 1 ? 'rank-1' : t.rank === 2 ? 'rank-2' : t.rank === 3 ? 'rank-3' : '';
+        return `
+          <div class="team-card" onclick="openDrawer('${t.name}')">
+            <div class="team-rank ${medalClass}">#${t.rank}</div>
+            <div class="team-info">
+              <div class="team-name">${t.name}</div>
+              <div class="team-sub">Media: ${t.avgPts.toLocaleString()} | Top: ${t.topScorer.name} (${t.topScorer.pts})</div>
+            </div>
+            <div class="team-score">
+              <div class="score-pts">${t.totalPts.toLocaleString()}</div>
+              <div class="score-gap">${t.gap === 0 ? 'Leader' : '-' + t.gap.toLocaleString()}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Drawer Roster Giocatori
+    function openDrawer(teamName) {
+      const team = aggregatedTeams.find(t => t.name === teamName);
+      if (!team) return;
+
+      document.getElementById("drawer-team-name").innerText = team.name;
+      document.getElementById("drawer-team-kpi").innerText = `Totale: ${team.totalPts.toLocaleString()} pti • Media: ${team.avgPts.toLocaleString()} pti`;
+
+      const listContainer = document.getElementById("drawer-players");
+      listContainer.innerHTML = team.roster.map(p => {
+        const pct = ((p.pts / team.totalPts) * 100).toFixed(1);
+        return `
+          <div class="roster-card">
+            <div class="player-left">
+              <img src="${p.img}" class="player-avatar" onerror="this.src='https://placehold.co/80x80/1e293b/a3e635?text=ATP'">
+              <div>
+                <div class="player-name">${p.name}</div>
+                <div class="player-meta">${p.nat} • ${p.age} anni</div>
+              </div>
+            </div>
+            <div class="player-right">
+              <div class="player-pts">${p.pts.toLocaleString()} pti</div>
+              <div class="player-pct">${pct}% team</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById("drawer-overlay").classList.add("active");
+      document.getElementById("drawer").classList.add("active");
+    }
+
+    function closeDrawer() {
+      document.getElementById("drawer-overlay").classList.remove("active");
+      document.getElementById("drawer").classList.remove("active");
+    }
+
+    // Render Tab Giocatori con Filtro & Ricerca
+    function renderPlayers(filterText = "", teamFilter = "") {
+      const container = document.getElementById("all-players-list");
+      const filtered = rawPlayers.filter(p => {
+        const matchName = p.name.toLowerCase().includes(filterText.toLowerCase());
+        const matchTeam = !teamFilter || p.team === teamFilter;
+        return matchName && matchTeam;
+      }).sort((a,b) => b.pts - a.pts);
+
+      container.innerHTML = filtered.map(p => `
+        <div class="roster-card">
+          <div class="player-left">
+            <img src="${p.img}" class="player-avatar" onerror="this.src='https://placehold.co/80x80/1e293b/a3e635?text=ATP'">
+            <div>
+              <div class="player-name">${p.name}</div>
+              <div class="player-meta">${p.team} • ${p.nat} (${p.age}a)</div>
+            </div>
+          </div>
+          <div class="player-right">
+            <div class="player-pts">${p.pts.toLocaleString()}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Inizializzazione Grafici Chart.js
+    function initCharts() {
+      // 1. Andamento Storico
+      const ctxLine = document.getElementById('chart-andamento').getContext('2d');
+      const colors = ['#22c55e', '#38bdf8', '#f59e0b', '#ec4899'];
+      const datasets = Object.keys(storicoRilevazioni.teams).map((teamName, i) => ({
+        label: teamName,
+        data: storicoRilevazioni.teams[teamName],
+        borderColor: colors[i % colors.length],
+        tension: 0.3,
+        borderWidth: 2,
+        pointRadius: 2
+      }));
+
+      new Chart(ctxLine, {
+        type: 'line',
+        data: { labels: storicoRilevazioni.labels, datasets },
+        options: {
+          responsive: true,
+          plugins: { legend: { labels: { color: '#94a3b8', font: { size: 10 } } } },
+          scales: {
+            x: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } },
+            y: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } }
+          }
+        }
+      });
+
+      // 2. Top 10 Giocatori
+      const ctxBar = document.getElementById('chart-top-players').getContext('2d');
+      const top10 = [...rawPlayers].sort((a,b) => b.pts - a.pts).slice(0, 10);
+
+      new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+          labels: top10.map(p => `${p.name} (${p.team})`),
+          datasets: [{
+            data: top10.map(p => p.pts),
+            backgroundColor: '#a3e635',
+            borderRadius: 4
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } },
+            y: { ticks: { color: '#f8fafc', font: { size: 9 } }, grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    // Render Albo d'Oro
+    function renderAlbo() {
+      const container = document.getElementById("albo-list");
+      container.innerHTML = alboStorico.map(a => `
+        <div class="albo-card">
+          <div class="albo-year">${a.year}</div>
+          <div class="albo-row rank-1"><i class="fa-solid fa-trophy"></i> 1° ${a.p1}</div>
+          <div class="albo-row rank-2">2° ${a.p2}</div>
+          <div class="albo-row rank-3">3° ${a.p3}</div>
+        </div>
+      `).join('');
+    }
+
+    // Gestione Tab
+    function switchTab(tabId, el) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-' + tabId).classList.add('active');
+      el.classList.add('active');
+      window.scrollTo(0, 0);
+    }
+
+    // Setup Eventi e Avvio
+    window.addEventListener('DOMContentLoaded', () => {
+      initData();
+      renderClassifica();
+      renderPlayers();
+      renderAlbo();
+      initCharts();
+
+      // Setup tendina filtri
+      const select = document.getElementById("team-filter");
+      aggregatedTeams.forEach(t => {
+        const opt = document.createElement("option");
+        opt.value = t.name;
+        opt.innerText = t.name;
+        select.appendChild(opt);
+      });
+
+      // Ricerca dinamica
+      const searchInput = document.getElementById("player-search");
+      searchInput.addEventListener("input", () => renderPlayers(searchInput.value, select.value));
+      select.addEventListener("change", () => renderPlayers(searchInput.value, select.value));
+
+      // Registrazione Service Worker
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(err => console.log('SW setup skipped:', err));
+      }
+    });
+  </script>
+</body>
+</html>
